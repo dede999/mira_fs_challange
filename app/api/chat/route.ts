@@ -13,17 +13,25 @@ type Coordinates = {
   longitude: number;
 };
 
-async function getCoordinates(args: QueryParams) {
-  const url = `http://api.openweathermap.org/geo/1.0/direct?q=${args.city},${args.state},${args.country}&limit=1&appid=${process.env.OPENWEATHER_API_KEY}`;
-  await axios
-    .get(url)
-    .then(({ data }) => {
-      console.log({
-        coordData: { latitude: data[0].lat, longitude: data[0].lon },
-      });
-      return { latitude: data[0].lat, longitude: data[0].lon };
-    })
-    .catch((err) => console.error(err));
+function appendUrlParams(baseUrl: string, query: any) {
+  const url = new URL(baseUrl);
+  Object.keys(query).forEach((key) => url.searchParams.append(key, query[key]));
+  url.searchParams.append("appid", process.env.OPENWEATHER_API_KEY as string);
+  return url.toString().replaceAll("%2C", ",");
+}
+
+async function getCoordinates(args: QueryParams): Promise<Coordinates> {
+  const url = appendUrlParams("http://api.openweathermap.org/geo/1.0/direct", {
+    q: `${args.city}\,${args.state}\,${args.country}`,
+    limit: 1,
+  });
+  try {
+    const { data } = await axios.get(url);
+    return { latitude: data[0].lat, longitude: data[0].lon };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
 
 async function getWeather(args: Coordinates) {
