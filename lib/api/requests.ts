@@ -1,5 +1,10 @@
 import axios from "axios";
-import { Coordinates, LocationParams, WeatherInfo } from "../types";
+import {
+  Coordinates,
+  ErrorMessage,
+  LocationParams,
+  WeatherInfo,
+} from "../types";
 
 export function appendUrlParams(baseUrl: string, query: any) {
   const url = new URL(baseUrl);
@@ -10,7 +15,7 @@ export function appendUrlParams(baseUrl: string, query: any) {
 
 export async function getCoordinates(
   args: LocationParams,
-): Promise<Coordinates> {
+): Promise<Coordinates | ErrorMessage> {
   const url = appendUrlParams("http://api.openweathermap.org/geo/1.0/direct", {
     q: `${args.city}\,${args.state}\,${args.country}`,
     limit: 1,
@@ -19,11 +24,13 @@ export async function getCoordinates(
     const { data } = await axios.get(url);
     return { latitude: data[0].lat, longitude: data[0].lon };
   } catch (err) {
-    throw err;
+    return { error: err, message: "Could not retireve cities' coordinates" };
   }
 }
 
-export async function getWeather(args: Coordinates): Promise<WeatherInfo> {
+export async function getWeather(
+  args: Coordinates,
+): Promise<WeatherInfo | ErrorMessage> {
   const url = appendUrlParams(
     "https://api.openweathermap.org/data/2.5/weather",
     {
@@ -41,7 +48,6 @@ export async function getWeather(args: Coordinates): Promise<WeatherInfo> {
       windSpeed: data.wind.speed,
     };
   } catch (err) {
-    console.error(err);
-    throw err;
+    return { error: err, message: "Error finding meteorological information" };
   }
 }

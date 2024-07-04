@@ -36,3 +36,8 @@ export type WeatherInfo = {
   rain: number;
   windSpeed: number;
 };
+
+export type ErrorMessage = {
+  message: string;
+  error: unknown;
+};
