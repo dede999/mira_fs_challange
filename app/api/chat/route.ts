@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { client } from "@/lib/openai";
 import axios from "axios";
 import { LocationParams, WeatherParams } from "@/lib/types";
+import { getCityName } from "@/lib/api/chatMessages";
 
 type QueryParams = {
   location: LocationParams;
@@ -69,15 +70,14 @@ async function getWeather(args: Coordinates): Promise<WeatherInfo> {
 export async function POST(request: Request) {
   const body = (await request.json()) as QueryParams;
   const getCoordinatesProc = async () => getCoordinates(body.location);
+  const cityName = getCityName(body.location);
 
   const runner = client.beta.chat.completions.runTools({
     model: "gpt-3.5-turbo",
     messages: [
       {
         role: "user",
-        content:
-          "The user wants to know if he/she can go outside in " +
-          `${body.location.city}, ${body.location.state}, ${body.location.country}`,
+        content: `The user wants to know if he/she can go outside in ${cityName} today. `,
       },
       {
         role: "user",
