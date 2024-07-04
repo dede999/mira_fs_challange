@@ -5,10 +5,10 @@ export type LocationParams = {
 };
 
 export type WeatherParams = {
-  maxTemp?: number;
-  minTemp?: number;
-  maxHumidity?: number;
-  minHumidity?: number;
-  rain?: boolean;
-  windSpeed?: number;
+  maxTemp: number;
+  minTemp: number;
+  maxHumidity: number;
+  minHumidity: number;
+  rain: boolean;
+  windSpeed: number;
 };

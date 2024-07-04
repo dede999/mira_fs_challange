@@ -6,7 +6,7 @@ import { getCityName } from "@/lib/api/chatMessages";
 
 type QueryParams = {
   location: LocationParams;
-  weather: WeatherParams;
+  weather: Partial<WeatherParams>;
 };
 
 type Coordinates = {
