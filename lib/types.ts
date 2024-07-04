@@ -12,3 +12,10 @@ export type WeatherParams = {
   rain: boolean;
   windSpeed: number;
 };
+
+export type OpenAiMessages = {
+  role: "user";
+  content: string;
+  name?: string;
+  tool_calls?: any;
+};
