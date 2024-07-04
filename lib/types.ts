@@ -19,3 +19,20 @@ export type OpenAiMessages = {
   name?: string;
   tool_calls?: any;
 };
+
+export type QueryParams = {
+  location: LocationParams;
+  weather: Partial<WeatherParams>;
+};
+
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+export type WeatherInfo = {
+  temperature: number;
+  humidity: number;
+  rain: number;
+  windSpeed: number;
+};
