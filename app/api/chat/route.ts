@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { client } from "@/lib/openai";
 import axios from "axios";
+import { LocationParams, WeatherParams } from "@/lib/types";
 
 type QueryParams = {
-  country: string;
-  state: string;
-  city: string;
+  location: LocationParams;
+  weather: WeatherParams;
 };
 
 type Coordinates = {
@@ -27,7 +27,7 @@ function appendUrlParams(baseUrl: string, query: any) {
   return url.toString().replaceAll("%2C", ",");
 }
 
-async function getCoordinates(args: QueryParams): Promise<Coordinates> {
+async function getCoordinates(args: LocationParams): Promise<Coordinates> {
   const url = appendUrlParams("http://api.openweathermap.org/geo/1.0/direct", {
     q: `${args.city}\,${args.state}\,${args.country}`,
     limit: 1,
@@ -68,7 +68,7 @@ async function getWeather(args: Coordinates): Promise<WeatherInfo> {
 
 export async function POST(request: Request) {
   const body = (await request.json()) as QueryParams;
-  const getCoordinatesProc = async () => getCoordinates(body);
+  const getCoordinatesProc = async () => getCoordinates(body.location);
 
   const runner = client.beta.chat.completions.runTools({
     model: "gpt-3.5-turbo",
@@ -76,8 +76,8 @@ export async function POST(request: Request) {
       {
         role: "user",
         content:
-          `The user is from ${body.city}, ${body.state}, ${body.country}.` +
-          "The user wants to know if he/she can go outside.",
+          "The user wants to know if he/she can go outside in " +
+          `${body.location.city}, ${body.location.state}, ${body.location.country}`,
       },
       {
         role: "user",
