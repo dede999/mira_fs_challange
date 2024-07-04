@@ -13,6 +13,13 @@ type Coordinates = {
   longitude: number;
 };
 
+type WeatherInfo = {
+  temperature: number;
+  humidity: number;
+  rain: number;
+  windSpeed: number;
+};
+
 function appendUrlParams(baseUrl: string, query: any) {
   const url = new URL(baseUrl);
   Object.keys(query).forEach((key) => url.searchParams.append(key, query[key]));
@@ -34,21 +41,29 @@ async function getCoordinates(args: QueryParams): Promise<Coordinates> {
   }
 }
 
-async function getWeather(args: Coordinates) {
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${args.latitude}&lon=${args.longitude}&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`;
+async function getWeather(args: Coordinates): Promise<WeatherInfo> {
+  const url = appendUrlParams(
+    "https://api.openweathermap.org/data/2.5/weather",
+    {
+      lat: args.latitude,
+      lon: args.longitude,
+      units: "metric",
+    },
+  );
   console.log({ url, args });
-  await axios
-    .get(url)
-    .then(({ data }) => {
-      console.log({ weatherData: data });
-      return {
-        temperature: data.main.feels_like,
-        humidity: data.main.humidity,
-        rain: data.rain ? data.rain["1h"] : 0,
-        windSpeed: data.wind.speed,
-      };
-    })
-    .catch((err) => console.error(err));
+  try {
+    const { data } = await axios.get(url);
+    console.log({ weatherData: data });
+    return {
+      temperature: data.main.feels_like,
+      humidity: data.main.humidity,
+      rain: data.rain ? data.rain["1h"] : 0,
+      windSpeed: data.wind.speed,
+    };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
 
 export async function POST(request: Request) {
